@@ -61,6 +61,7 @@ int main()
           pid.UpdateError(cte);
           steer_value = - pid.Kp * pid.p_error - pid.Kd * pid.d_error - pid.Ki * pid.i_error;
           double throttle_value = 0.1 + (1 - abs(steer_value)) * 0.4;
+          // TODO(jie): Any need for using deg2rad? or rad2deg? Look at some other's implementation?
 
           double cp[3];  // control contribution percentage
           cp[0] = -pid.Kp * pid.p_error / steer_value * 100;
