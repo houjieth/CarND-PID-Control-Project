@@ -34,7 +34,7 @@ int main()
 
   PID pid;
   // TODO: Initialize the pid variable.
-  pid.Init(0.1, 1.0, 0.0001);
+  pid.Init(0.1, 4.0, 0.005);
 
   h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -60,19 +60,20 @@ int main()
           */
           pid.UpdateError(cte);
           steer_value = - pid.Kp * pid.p_error - pid.Kd * pid.d_error - pid.Ki * pid.i_error;
-          double throttle_value = 0.1 + (1 - abs(steer_value)) * 0.4;
-          // TODO(jie): Any need for using deg2rad? or rad2deg? Look at some other's implementation?
+          double throttle_value = 0.1 + (1 - abs(steer_value)) * 0.3;
 
           double cp[3];  // control contribution percentage
           cp[0] = -pid.Kp * pid.p_error / steer_value * 100;
           cp[1] = -pid.Kd * pid.d_error / steer_value * 100;
           cp[2] = -pid.Ki * pid.i_error / steer_value * 100;
 
-          // DEBUG
+          // DEBUG OUTPUT
+          // Output absolute error value
 //          std::cout << "CTE: " << cte << " Steering Value: " << steer_value
 //                    << " p_error: " << pid.p_error << " d_error: " << pid.d_error
 //                    << " i_error: " << pid.i_error << std::endl;
 
+          // Output error contribution percentage
           std::cout << "CTE: " << cte << "\t\tSteering Value: " << steer_value
                     << "\t\tp_%:" << cp[0] << "\t\td_%:" << cp[1]
                     << "\t\ti_%:" << cp[2] << std::endl;
@@ -81,7 +82,6 @@ int main()
           msgJson["steering_angle"] = steer_value;
           msgJson["throttle"] = throttle_value;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-//          std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
         }
       } else {
